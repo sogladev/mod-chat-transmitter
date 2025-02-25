@@ -34,6 +34,7 @@ namespace ModChatTransmitter
 
         void QueueChat(Player* player, uint32 type, std::string& msg);
         void QueueChat(Player* player, uint32 type, std::string& msg, Channel* channel);
+        void QueuePositions(std::vector<nlohmann::json> &mapData);
         void Update();
         void Stop();
         void Start();

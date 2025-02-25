@@ -7,6 +7,10 @@
 #include "Requests/RequestQueryResult.h"
 #include "Requests/RequestCommandResult.h"
 #include "Requests/RequestAnticheatReport.h"
+#include "Requests/RequestPositions.h"
+
+#include "WorldSessionMgr.h"
+#include "MapMgr.h"
 
 #if __has_include("mod-anticheat/src/AnticheatMgr.h")
 #include "mod-anticheat/src/AnticheatMgr.h"
@@ -78,33 +82,87 @@ namespace ModChatTransmitter
         }
     }
 
+    void ChatTransmitter::QueuePositions(std::vector<nlohmann::json> &mapData)
+    {
+        if (wsClient && IsEnabled())
+        {
+            QueueRequest(new Requests::Positions(mapData));
+        }
+    }
+
     void ChatTransmitter::Update()
     {
-        std::string json;
-        while (wsClient && wsClient->GetReceivedMessage(json))
+        if (wsClient && IsEnabled())
         {
-            nlohmann::json item = nlohmann::json::parse(json);
-            std::string message = item["message"].get<std::string>();
-            nlohmann::json data = item["data"];
-            std::string id = data["id"].get<std::string>();
+            std::vector<nlohmann::json> mapData;
 
-            if (message == "command")
+            sMapMgr->DoForAllMaps([&mapData](Map* map)
             {
-                std::string command = data["command"].get<std::string>();
-                HandleCommand(id, command);
-            }
-            else if (message == "query")
-            {
-                std::string query = data["query"].get<std::string>();
-                int db = data["database"].get<int>();
-                HandleQuery(id, query, (QueryDatabase)db);
-            }
-        }
+                nlohmann::json mapEntry;
+                std::vector<nlohmann::json> players;
 
-        Requests::QueryResult* queryResult;
-        while (dbManager && dbManager->GetResult(queryResult))
-        {
-            QueueRequest(queryResult);
+                map->DoForAllPlayers([&players](Player* player) {
+                    Position pos = player->GetPosition();
+                    uint32 zoneId, areaId;
+                    player->GetZoneAndAreaId(zoneId, areaId);
+
+                    nlohmann::json playerData;
+                    playerData["guid"] = player->GetGUID().ToString();
+                    playerData["name"] = player->GetName();
+                    playerData["position"] = {
+                        {"x", pos.GetPositionX()},
+                        {"y", pos.GetPositionY()},
+                        {"z", pos.GetPositionZ()},
+                        {"o", pos.GetOrientation()}
+                    };
+                    playerData["alive"] = player->IsAlive();
+                    playerData["zone"] = zoneId;
+                    playerData["area"] = areaId;
+
+                    players.push_back(playerData);
+                });
+
+                if (!players.empty())
+                {
+                    mapEntry["mapId"] = map->GetId();
+                    mapEntry["players"] = players;
+                    mapData.push_back(mapEntry);
+                }
+            });
+
+            if (!mapData.empty())
+            {
+                QueuePositions(mapData);
+            }
+
+            // Receiving and responding to messages
+            std::string json;
+            while (wsClient && wsClient->GetReceivedMessage(json))
+            {
+            //     nlohmann::json item = nlohmann::json::parse(json);
+            //     std::string message = item["message"].get<std::string>();
+            //     nlohmann::json data = item["data"];
+            //     std::string id = data["id"].get<std::string>();
+
+            //     if (message == "command")
+            //     {
+            //         std::string command = data["command"].get<std::string>();
+                    // HandleCommand(id, command);
+            //     }
+            //     else if (message == "query")
+            //     {
+            //         std::string query = data["query"].get<std::string>();
+            //         int db = data["database"].get<int>();
+            //         HandleQuery(id, query, (QueryDatabase)db);
+            //     }
+            // }
+
+            // Requests::QueryResult* queryResult;
+            // while (dbManager && dbManager->GetResult(queryResult))
+            // {
+                // QueueRequest(queryResult);
+            // }
+            }
         }
     }
 
