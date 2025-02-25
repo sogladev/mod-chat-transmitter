@@ -31,7 +31,6 @@ namespace ModChatTransmitter
         std::string GetBotWsHost() const;
         std::string GetBotWsKey() const;
         int GetBotWsPort() const;
-        std::string GetElunaDatabaseInfo() const;
 
         void QueueChat(Player* player, uint32 type, std::string& msg);
         void QueueChat(Player* player, uint32 type, std::string& msg, Channel* channel);

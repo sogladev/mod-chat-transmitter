@@ -3,7 +3,6 @@
 #include "ChatTransmitter.h"
 #include "ChatTransmitterScripts.h"
 #include "Requests/RequestChat.h"
-#include "Requests/RequestElunaError.h"
 #include "Requests/RequestChatChannel.h"
 #include "Requests/RequestQueryResult.h"
 #include "Requests/RequestCommandResult.h"
@@ -11,10 +10,6 @@
 
 #if __has_include("mod-anticheat/src/AnticheatMgr.h")
 #include "mod-anticheat/src/AnticheatMgr.h"
-#endif
-
-#if __has_include("mod-eluna/src/LuaEngine/LuaEngine.h")
-#include "mod-eluna/src/LuaEngine/LuaEngine.h"
 #endif
 
 namespace ModChatTransmitter
@@ -65,11 +60,6 @@ namespace ModChatTransmitter
     int ChatTransmitter::GetBotWsPort() const
     {
         return sConfigMgr->GetOption<int32>("ChatTransmitter.BotWsPort", 22141);
-    }
-
-    std::string ChatTransmitter::GetElunaDatabaseInfo() const
-    {
-        return sConfigMgr->GetOption<std::string>("ChatTransmitter.ElunaDatabaseInfo", "127.0.0.1;3306;acore;acore;acore_eluna");
     }
 
     void ChatTransmitter::QueueChat(Player* player, uint32 type, std::string& msg)
@@ -153,13 +143,6 @@ namespace ModChatTransmitter
         sAnticheatMgr->OnReport += [this](Player* player, uint16 reportType)
         {
             QueueRequest(new Requests::AnticheatReport(player, reportType));
-        };
-#endif
-
-#ifdef sEluna
-        sEluna->OnError += [this](std::string trace)
-        {
-            QueueRequest(new Requests::ElunaError(trace));
         };
 #endif
     }

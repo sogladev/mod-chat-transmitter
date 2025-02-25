@@ -14,7 +14,6 @@ namespace ModChatTransmitter
         authConnInfo(nullptr), authSqlQueue(nullptr), authDatabase(nullptr),
         charsConnInfo(nullptr), charsSqlQueue(nullptr), charsDatabase(nullptr),
         worldConnInfo(nullptr), worldSqlQueue(nullptr), worldDatabase(nullptr),
-        elunaConnInfo(nullptr), elunaSqlQueue(nullptr), elunaDatabase(nullptr),
         stop(false)
     { }
 
@@ -25,8 +24,7 @@ namespace ModChatTransmitter
         InitializeDatabase(LoginDatabase.GetConnectionInfo(), &authConnInfo, &authSqlQueue, &authDatabase);
         InitializeDatabase(CharacterDatabase.GetConnectionInfo(), &charsConnInfo, &charsSqlQueue, &charsDatabase);
         InitializeDatabase(WorldDatabase.GetConnectionInfo(), &worldConnInfo, &worldSqlQueue, &worldDatabase);
-        InitializeDatabase(ChatTransmitter::Instance().GetElunaDatabaseInfo(), &elunaConnInfo, &elunaSqlQueue, &elunaDatabase);
-        if (!authDatabase || !charsDatabase || !worldDatabase || !elunaDatabase)
+        if (!authDatabase || !charsDatabase || !worldDatabase)
         {
             return;
         }
@@ -70,9 +68,6 @@ namespace ModChatTransmitter
             break;
         case QueryDatabase::World:
             db = worldDatabase;
-            break;
-        case QueryDatabase::Eluna:
-            db = elunaDatabase;
             break;
         default:
             return;
@@ -238,6 +233,5 @@ namespace ModChatTransmitter
         CleanupDatabase(authConnInfo, authSqlQueue, &authDatabase);
         CleanupDatabase(charsConnInfo, charsSqlQueue, &charsDatabase);
         CleanupDatabase(worldConnInfo, worldSqlQueue, &worldDatabase);
-        CleanupDatabase(elunaConnInfo, elunaSqlQueue, &elunaDatabase);
     }
 }

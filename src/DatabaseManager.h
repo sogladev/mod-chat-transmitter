@@ -13,7 +13,6 @@ namespace ModChatTransmitter
         Auth = 0,
         Characters = 1,
         World = 2,
-        Eluna = 3,
     };
 
     class DatabaseManager
@@ -63,10 +62,6 @@ namespace ModChatTransmitter
         MySQLConnectionInfo* worldConnInfo;
         ProducerConsumerQueue<SQLOperation*>* worldSqlQueue;
         ChatTransmitterDatabaseConnection* worldDatabase;
-
-        MySQLConnectionInfo* elunaConnInfo;
-        ProducerConsumerQueue<SQLOperation*>* elunaSqlQueue;
-        ChatTransmitterDatabaseConnection* elunaDatabase;
 
         std::atomic_bool stop;
     };
