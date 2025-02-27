@@ -107,7 +107,7 @@ namespace ModChatTransmitter
                     player->GetZoneAndAreaId(zoneId, areaId);
 
                     nlohmann::json playerData;
-                    playerData["guid"] = player->GetGUID().ToString();
+                    playerData["guid"] = player->GetGUID().GetCounter();
                     playerData["name"] = player->GetName();
                     playerData["position"] = {
                         {"x", pos.GetPositionX()},
@@ -118,6 +118,7 @@ namespace ModChatTransmitter
                     playerData["alive"] = player->IsAlive();
                     playerData["zone"] = zoneId;
                     playerData["area"] = areaId;
+                    playerData["mapId"] = player->GetMapId();
 
                     players.push_back(playerData);
                 });
