@@ -16,7 +16,7 @@ namespace ModChatTransmitter::Requests
     std::string Positions::GetContents()
     {
         nlohmann::json jsonObj;
-        jsonObj["message"] = "positions";
+        jsonObj["message"] = "all-maps";
         jsonObj["data"] = data;
         return jsonObj.dump();
     }
